@@ -12,11 +12,9 @@
 > `developers.whmcs.com/payment-gateways/`. The Blesta side is `components/gateways/lib/` and the shipped
 > `paypal_payments_standard` (nonmerchant), `authorize_net` / `stripe_payments` (merchant).
 >
-> **Licensing note:** the WHMCS sample repos ship an **MIT `LICENSE`** file, but the individual PHP files
-> carry a conflicting **WHMCS EULA** header (`@license … WHMCS Eula`). Given that ambiguity, use the samples
-> only to learn the **contract** (function names, parameter shapes, mapping facts — not copyrightable) and
-> write **original** Blesta-side code. **Do not copy WHMCS sample code verbatim** into your ported gateway
-> or this kit.
+> **Shared WHMCS conventions** (licensing caveat, the re-source-don't-transform rule, config field-type
+> table, error/logging translation, Smarty→`.pdt`, naming/packaging) live in
+> **`reference/common/whmcs-mapping.md`** — read it once; this doc covers only what's gateway-specific.
 
 ---
 
@@ -124,8 +122,9 @@ WHMCS _MetaData() flags / which functions exist
 | field `Type` (text/password/yesno/dropdown/radio/textarea) | the corresponding `Form`/field helper in `settings.pdt` (text/password/checkbox/select/radio/textarea) |
 | `testMode` (yesno) | a `test_mode` meta toggle read in your processing methods |
 
-The WHMCS config field types map the same way as module config options (`convert-from-whmcs.md` for
-modules, §4) — `yesno`→checkbox, `dropdown`→select, `radio`→radio, etc. The **admin settings form is
+The WHMCS config field types (`yesno`→checkbox, `dropdown`→select, `radio`→radio, etc.) map per the shared
+table in `reference/common/whmcs-mapping.md` §3 — including the **key-not-label** warning (`_config()`
+`fields` is keyed by the config key; `FriendlyName` is display metadata). The **admin settings form is
 Paradigm/Bootstrap 5** (§10).
 
 ---

@@ -7,7 +7,11 @@ gateways — optimized for AI-assisted development.
 
 1. **Portable context (any AI tool).** The files under `reference/` are plain markdown. Drop the relevant
    one into Cursor / Copilot / ChatGPT / Claude.ai / the API as context and ask it to build or convert an
-   extension. Each file is self-contained — load only the type you're working on.
+   extension. Load the file for the type you're working on, plus:
+   - any **WHMCS** port also needs `reference/common/whmcs-mapping.md` (the shared conventions);
+   - any **admin UI / view** work also needs `reference/common/conversion-ui.md`.
+
+   Otherwise the per-type files stand alone.
 
 2. **Claude Code skill.** This folder is also a skill: `SKILL.md` is the router that pulls in the right
    reference on demand. To install, copy or symlink this folder into your Claude Code skills directory
@@ -21,7 +25,8 @@ extension-dev-kit/
 ├── README.md                        # this file
 └── reference/
     ├── common/
-    │   └── conversion-ui.md         # Bootstrap 4→5 / jQuery→vanilla / FA→BI / Paradigm UI (shared)
+    │   ├── conversion-ui.md         # Bootstrap 4→5 / jQuery→vanilla / FA→BI / Paradigm UI (shared)
+    │   └── whmcs-mapping.md         # shared WHMCS→Blesta conventions (license, re-source rule, field types, errors/logging, Smarty→pdt)
     ├── modules/
     │   ├── create.md                # author a new module (hosting + registrar)
     │   ├── convert.md               # port a module from 5.x

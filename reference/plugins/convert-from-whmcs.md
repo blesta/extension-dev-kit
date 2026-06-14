@@ -12,10 +12,9 @@
 > is `components/plugins/lib/plugin.php`, `app/models/plugin_manager.php`, and shipped plugins
 > (`support_manager`, `order`, `feed_reader`).
 >
-> **Licensing note:** the WHMCS sample repo ships an **MIT `LICENSE`** file, but the individual PHP files
-> carry a conflicting **WHMCS EULA** header (`@license … WHMCS Eula`). Use the samples only to learn the
-> **contract** (function names, `$vars`/return shapes — not copyrightable) and write **original** Blesta-side
-> code. **Do not copy WHMCS sample code verbatim.**
+> **Shared WHMCS conventions** (licensing caveat, the re-source-don't-transform rule, config field-type
+> table, error/logging translation, Smarty→`.pdt`, naming/packaging) live in
+> **`reference/common/whmcs-mapping.md`** — read it once; this doc covers only what's addon-specific.
 
 ---
 
@@ -68,7 +67,7 @@ WHMCS passes every addon function a `$vars` array of the module config + a few s
 
 | WHMCS `$vars` key | What it is | Blesta equivalent |
 |---|---|---|
-| `'Text Field Name'`, … (by **FriendlyName**) | your `_config()` `fields[]` values | your **own** settings storage (company setting or a plugin settings table) — §4 |
+| `'Text Field Name'`, … (by the field **key**) | your `_config()` `fields[]` values | your **own** settings storage (company setting or a plugin settings table) — §4 |
 | `version` | installed module version | `$this->getVersion()` / the plugin's stored version |
 | `modulelink` | admin entry URL (`addonmodules.php?module=…`) | your controller URL (`/admin/plugin/{dir}/admin_main/`) |
 | `_lang` | loaded language array | `Language::loadLang(...)` + `$this->_('Key')` / `Language::_('Key', true)` |
@@ -105,9 +104,14 @@ system** — a plugin builds and stores its own settings. Two idiomatic options:
 - **A dedicated settings controller/action** reached via a `nav_staff` action.
 
 Store values with the `Companies` model settings or a plugin-owned table; read them where WHMCS read
-`$vars['Field Name']`. The WHMCS field types (text/password/yesno/dropdown/radio/textarea) map to the same
-`Form` helpers as everywhere (`reference/modules/convert-from-whmcs.md` §4 has the type table). WHMCS keys
-settings by the **FriendlyName label** — when porting, switch to stable machine keys.
+`$vars['<field key>']`. The WHMCS field types (text/password/yesno/dropdown/radio/textarea) map to the same
+`Form` helpers as everywhere (`reference/common/whmcs-mapping.md` has the type table).
+
+> **WHMCS `_config()` `fields` is keyed by the field _key_, not the label.** `fields` is an associative
+> array whose **key** is the config key; `FriendlyName` is separate *display* metadata inside each entry,
+> and `$vars` exposes each value by that **field key**. The sample is misleading because it sets the key and
+> `FriendlyName` to the same string (`'Text Field Name' => ['FriendlyName' => 'Text Field Name', …]`). When
+> porting, key your Blesta settings by a **stable machine name** (e.g. `api_key`), not the human label.
 
 ---
 
@@ -122,7 +126,11 @@ settings by the **FriendlyName label** — when porting, switch to stable machin
   dispatcher** — the router maps `/admin/plugin/{dir}/admin_main/{method}/` to the method (`create.md` §5).
 - Register a **`nav_staff` action** in `getActions()` so the page appears in the admin menu (`create.md`
   §8). (WHMCS auto-lists addons under the Addons menu; Blesta needs the explicit nav action.)
-- `echo`-style HTML output → set view vars and return/`partial()` a `.pdt` (admin = Paradigm/BS5, §9).
+- `echo`-style HTML output → **`$this->set('key', $value)`** and let Blesta **auto-render the `.pdt` that
+  matches the action name** (e.g. `index()` → `views/default/admin_main.pdt`); a routed controller method
+  normally returns nothing. Reserve **`$this->partial(...)`** for AJAX fragments and for the embedded
+  **Manage** page (`AdminManagePlugin`), which must *return* its HTML (`create.md` §9). Admin = Paradigm/BS5
+  (§9).
 
 `_sidebar($vars)` (admin sidebar HTML) has **no exact Blesta equivalent**. Map it to a **staff widget**
 (`widget_staff_home`/`widget_staff_client`/`widget_staff_billing` action) or a **card** (`getCards()` at

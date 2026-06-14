@@ -32,13 +32,14 @@ extensions. Blesta extensions come in three kinds:
 |---|---|
 | Building a **new module** | `reference/modules/create.md` |
 | Porting a **module** from 5.x | `reference/modules/convert.md` + `reference/common/conversion-ui.md` |
-| Porting a **module from WHMCS** (provisioning or registrar) | `reference/modules/convert-from-whmcs.md` + `reference/modules/create.md` |
+| Porting a **module from WHMCS** (provisioning or registrar) | `reference/modules/convert-from-whmcs.md` + `reference/common/whmcs-mapping.md` + `reference/modules/create.md` |
 | Building a **new plugin** | `reference/plugins/create.md` |
 | Porting a **plugin** from 5.x | `reference/plugins/convert.md` + `reference/common/conversion-ui.md` |
-| Porting a **WHMCS addon module** to a plugin | `reference/plugins/convert-from-whmcs.md` + `reference/plugins/create.md` |
+| Porting a **WHMCS addon module** to a plugin | `reference/plugins/convert-from-whmcs.md` + `reference/common/whmcs-mapping.md` + `reference/plugins/create.md` |
 | Building a **new gateway** | `reference/gateways/create.md` |
 | Porting a **gateway** from 5.x | `reference/gateways/convert.md` + `reference/common/conversion-ui.md` |
-| Porting a **gateway from WHMCS** (third-party or merchant) | `reference/gateways/convert-from-whmcs.md` + `reference/gateways/create.md` |
+| Porting a **gateway from WHMCS** (third-party or merchant) | `reference/gateways/convert-from-whmcs.md` + `reference/common/whmcs-mapping.md` + `reference/gateways/create.md` |
+| Porting **anything from WHMCS** (shared conventions) | `reference/common/whmcs-mapping.md` |
 | Doing **any UI / view work** | `reference/common/conversion-ui.md` |
 
 ## Ground rules (apply to every extension type)
@@ -48,7 +49,7 @@ extensions. Blesta extensions come in three kinds:
 - **Ship `en_us` only** for language in core-style extensions; other locales are added by the translation pipeline. Third-party extensions may ship whatever locales they maintain.
 - **Admin vs client UI are different frameworks in 6.0.** **Admin** views render in Paradigm (Bootstrap 5, Bootstrap Icons, vanilla JS — no jQuery) and must work in **both light and dark mode** — see `reference/common/conversion-ui.md`. The **client portal** (`bootstrap` theme) is still **Bootstrap 4 + jQuery + FontAwesome** in 6.0, so client-facing views target BS4 (a BS5 client theme is planned for 6.1). Don't apply the admin conversion to client views.
 - **Validate with the `Input` component and set errors** rather than throwing — the host app reads `->errors()` to decide whether to proceed.
-- **Log every remote API call** with `$this->log(...)` and mask secrets before logging.
+- **Log every remote API call** and mask secrets before logging. **Modules and gateways** use the inherited `$this->log(...)`. **Plugins have no `$this->log()`** — use the app logger (`$this->getFromContainer('logger')`) for diagnostics or a plugin-owned log table/model for an audit trail.
 
 ## Status
 
@@ -56,6 +57,7 @@ extensions. Blesta extensions come in three kinds:
 - ✅ `reference/modules/convert.md` — porting modules from 5.x
 - ✅ `reference/modules/convert-from-whmcs.md` — porting a WHMCS provisioning/registrar module to Blesta
 - ✅ `reference/common/conversion-ui.md` — the Bootstrap 4→5 / jQuery→vanilla / FA→BI UI guide (shared)
+- ✅ `reference/common/whmcs-mapping.md` — shared WHMCS→Blesta conventions (license, re-source rule, field types, errors/logging, Smarty→pdt)
 - ✅ `reference/gateways/create.md` — authoring gateways (merchant + nonmerchant; classic & tokenized)
 - ✅ `reference/gateways/convert.md` — porting gateways from 5.x
 - ✅ `reference/gateways/convert-from-whmcs.md` — porting a WHMCS third-party/merchant gateway to Blesta

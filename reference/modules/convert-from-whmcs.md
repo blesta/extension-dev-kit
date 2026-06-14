@@ -13,11 +13,9 @@
 > (`developers.whmcs.com/provisioning-modules/`, `/domain-registrars/`). The Blesta side is the abstract
 > `Module` / `RegistrarModule` base classes (`components/modules/`).
 >
-> **Licensing note:** the WHMCS sample repos ship an **MIT `LICENSE`** file, but the individual PHP files
-> carry a conflicting **WHMCS EULA** header (`@license … WHMCS Eula`). Given that ambiguity, use the samples
-> only to learn the **contract** (function names, `$params` shapes, mapping facts — not copyrightable) and
-> write **original** Blesta-side code. **Do not copy WHMCS sample code verbatim** into your ported module or
-> this kit.
+> **Shared WHMCS conventions** (licensing caveat, the re-source-don't-transform rule, config field-type
+> table, error/logging translation, Smarty→`.pdt`, naming/packaging) live in
+> **`reference/common/whmcs-mapping.md`** — read it once; this doc covers only what's module-specific.
 
 ---
 
