@@ -32,10 +32,13 @@ extensions. Blesta extensions come in three kinds:
 |---|---|
 | Building a **new module** | `reference/modules/create.md` |
 | Porting a **module** from 5.x | `reference/modules/convert.md` + `reference/common/conversion-ui.md` |
+| Porting a **module from WHMCS** (provisioning or registrar) | `reference/modules/convert-from-whmcs.md` + `reference/modules/create.md` |
 | Building a **new plugin** | `reference/plugins/create.md` |
 | Porting a **plugin** from 5.x | `reference/plugins/convert.md` + `reference/common/conversion-ui.md` |
+| Porting a **WHMCS addon module** to a plugin | `reference/plugins/convert-from-whmcs.md` + `reference/plugins/create.md` |
 | Building a **new gateway** | `reference/gateways/create.md` |
 | Porting a **gateway** from 5.x | `reference/gateways/convert.md` + `reference/common/conversion-ui.md` |
+| Porting a **gateway from WHMCS** (third-party or merchant) | `reference/gateways/convert-from-whmcs.md` + `reference/gateways/create.md` |
 | Doing **any UI / view work** | `reference/common/conversion-ui.md` |
 
 ## Ground rules (apply to every extension type)
@@ -51,8 +54,11 @@ extensions. Blesta extensions come in three kinds:
 
 - ✅ `reference/modules/create.md` — authoring modules (hosting + registrar)
 - ✅ `reference/modules/convert.md` — porting modules from 5.x
+- ✅ `reference/modules/convert-from-whmcs.md` — porting a WHMCS provisioning/registrar module to Blesta
 - ✅ `reference/common/conversion-ui.md` — the Bootstrap 4→5 / jQuery→vanilla / FA→BI UI guide (shared)
 - ✅ `reference/gateways/create.md` — authoring gateways (merchant + nonmerchant; classic & tokenized)
 - ✅ `reference/gateways/convert.md` — porting gateways from 5.x
+- ✅ `reference/gateways/convert-from-whmcs.md` — porting a WHMCS third-party/merchant gateway to Blesta
 - ✅ `reference/plugins/create.md` — authoring plugins (pages, actions/widgets, events, cron, ACL, cards, messages, service tabs)
 - ✅ `reference/plugins/convert.md` — porting plugins from 5.x
+- ✅ `reference/plugins/convert-from-whmcs.md` — porting a WHMCS addon module to a Blesta plugin

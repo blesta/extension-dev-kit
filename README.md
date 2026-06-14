@@ -24,24 +24,29 @@ extension-dev-kit/
     │   └── conversion-ui.md         # Bootstrap 4→5 / jQuery→vanilla / FA→BI / Paradigm UI (shared)
     ├── modules/
     │   ├── create.md                # author a new module (hosting + registrar)
-    │   └── convert.md               # port a module from 5.x
+    │   ├── convert.md               # port a module from 5.x
+    │   └── convert-from-whmcs.md    # port a WHMCS provisioning/registrar module to Blesta
     ├── gateways/
     │   ├── create.md                # author a new gateway (merchant + nonmerchant; classic & tokenized)
-    │   └── convert.md               # port a gateway from 5.x
+    │   ├── convert.md               # port a gateway from 5.x
+    │   └── convert-from-whmcs.md    # port a WHMCS third-party/merchant gateway to Blesta
     └── plugins/
         ├── create.md                # author a new plugin (pages, actions/widgets, events, cron, ACL, cards, messages, tabs)
-        └── convert.md               # port a plugin from 5.x
+        ├── convert.md               # port a plugin from 5.x
+        └── convert-from-whmcs.md    # port a WHMCS addon module to a Blesta plugin
 ```
 
 ## Scope today
 
 - ✅ **Modules** — full method-surface reference for hosting/server (`extends Module`) and registrar
-  (`extends RegistrarModule`) modules, plus a 5.x→6.0 porting guide.
+  (`extends RegistrarModule`) modules, plus a 5.x→6.0 porting guide and a **WHMCS→Blesta** porting guide
+  (provisioning + registrar).
 - ✅ **Payment gateways** — base `Gateway` + `MerchantGateway`/`NonmerchantGateway` contracts, all
-  capability interfaces, the modern tokenized (PCI-reducing) pattern, and a 5.x→6.0 porting guide.
+  capability interfaces, the modern tokenized (PCI-reducing) pattern, a 5.x→6.0 porting guide, and a
+  **WHMCS→Blesta** porting guide (third-party + merchant).
 - ✅ **Plugins** — the full handler contract plus directly-routable controllers/models, navigation &
   widget actions, the event system, cron tasks, ACL permissions, dashboard/profile cards, messenger
-  templates, and service tabs, with a 5.x→6.0 porting guide.
+  templates, and service tabs, with a 5.x→6.0 porting guide and a **WHMCS addon→Blesta plugin** porting guide.
 - ✅ **UI conversion** — the shared Bootstrap 5 / Paradigm guide used by every extension type.
 
 ## Sourcing & accuracy
