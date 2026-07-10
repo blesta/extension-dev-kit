@@ -69,7 +69,7 @@ Apply these in order:
 5. **Form controls**: pass `'class' => 'form-control'` to text/textarea/file, `'class' => 'form-select'` to selects, `'class' => 'form-check-input'` to checkboxes/radios. Replace `form-group` with `mb-3`. Replace `<ul><li>` form rows with `<div class="mb-3">` blocks. Replace `custom-control` family with `form-check` family.
 6. **Form labels**: pass `'class' => 'form-label'` to top-block labels, `'class' => 'form-check-label'` to checkbox/radio labels. Replace `<label class="inline">` with `<label class="form-check-label">`.
 7. **Cards**: replace `<div class="inner">` / `<div class="pad">` / `<div class="title_row">` / `<div class="button_row">` with BS5 card sections (see §7.2).
-8. **Tables**: wrap in `<div class="table-responsive">`; use `<table class="table table-hover mb-0">`; add proper `<thead>`/`<tbody>`; drop `class="heading_row"`, `class="last"`, manual `odd_row` zebra striping.
+8. **Tables**: wrap in `<div class="table-responsive">`; use `<table class="table table-hover mb-0">`; add proper `<thead>`/`<tbody>`; drop `class="heading_row"`, `class="last"`, manual `odd_row` zebra striping. In widget **listing views**, also call `$this->Widget->setBodyWrapper(false)` before `Widget->create()` so the table runs edge-to-edge (the default card-body wrapper otherwise insets it with padding), and give the empty-state branch its own `<div class="card-body text-center text-muted py-5">`.
 9. **Modal close**: `<button class="close" data-dismiss="modal"><span>&times;</span></button>` → `<button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>`.
 10. **Icons**: replace every `<i class="fas|far|fa fa-…">` with `<i class="bi bi-…">` (see §5 for the mapping table).
 11. **JavaScript**: replace every `$(document).ready(...)`, jQuery selector, jQuery event, `$.fn.blestaXxx`, `blestaRequest({dataType:'json'})` with vanilla JS equivalents (see §6).
@@ -589,7 +589,7 @@ Every `<i class="fas|far|fa fa-…">` must become `<i class="bi bi-…">`. Drop 
 
 ### 5.2 Icon classes in PHP (ADMIN only)
 
-The framework's **admin** `setLinkButtons`, `setLinks`, `setWidgetButton`, and module `getAdminTabs` /
+The framework's **admin** `setLinkButtons`, `setLinks`, `setWidgetButton`, and **plugin**
 `getAdminServiceTabs` arrays carry an `'icon'` key — convert these to Bootstrap Icons:
 
 ```diff
@@ -600,10 +600,16 @@ The framework's **admin** `setLinkButtons`, `setLinks`, `setWidgetButton`, and m
 +     'icon' => 'bi bi-plus-lg'
   ];
 
-  // Module PHP file — ADMIN tabs (e.g. getAdminTabs / getAdminServiceTabs)
-- 'tabStats'    => ['name' => Language::_('Cpanel.tab_stats', true),    'icon' => 'fas fa-cog'],
-+ 'tabStats'    => ['name' => Language::_('Cpanel.tab_stats', true),    'icon' => 'bi bi-bar-chart'],
+  // PLUGIN php file — admin service tabs support the name/icon array form
+- 'tabStats'    => ['name' => Language::_('MyPlugin.tab_stats', true),    'icon' => 'fas fa-cog'],
++ 'tabStats'    => ['name' => Language::_('MyPlugin.tab_stats', true),    'icon' => 'bi bi-bar-chart'],
 ```
+
+> **⚠ MODULE admin tabs are different — plain strings ONLY.** A module's `getAdminTabs()` /
+> `getAdminServiceTabs()` must return `'tabFoo' => "Title"`. Core (`AdminClients::getTabs`) uses the
+> value directly as the tab label — the `['name' => …, 'icon' => …]` array form renders the tab as the
+> literal text "Array" and logs `E_WARNING: Array to string conversion` in `helpers/widget/widget.php`.
+> Module admin tabs cannot carry icons; every shipped v6 module (cpanel, pterodactyl, …) uses strings.
 
 > **Do NOT convert client tab icons.** `getClientTabs` / `getClientServiceTabs` arrays render in the 6.0
 > client portal (`bootstrap` theme), which still uses **FontAwesome** — leave those `'icon' => 'fas fa-…'`
@@ -1950,6 +1956,14 @@ Wrap pagination output in `if ($this->Pagination->hasPages()) { … }` so single
 
 Existing v5 plugin endpoints that emitted `{replacer: '.common_box_content', content: '…'}` need to switch to `{replacer: '.card-content', content: '…'}` for admin. (Client portal already used `.card-content`.)
 
+### 15.13 Module admin tabs render as "Array"
+
+A **module's** `getAdminTabs()` / `getAdminServiceTabs()` must return plain strings (`'tabFoo' => "Title"`). Core uses the value directly as the tab label, so the `['name' => …, 'icon' => …]` array form renders the tab as the literal text "Array" and logs `E_WARNING: Array to string conversion` (`helpers/widget/widget.php`). The array form is only valid for **plugin** `getAdminServiceTabs()` and for client tabs (§5.2). Module admin tabs cannot carry icons.
+
+### 15.14 Listing table doesn't span the full card width
+
+If a table sits inset from the card edges, the widget's default `card-body` wrapper is padding it. Call `$this->Widget->setBodyWrapper(false)` before `Widget->create()` and give the empty-state branch its own `<div class="card-body text-center text-muted py-5">` (§9.1). Form views keep the default wrapper.
+
 ---
 
 ## 16. Canonical reference files
@@ -2019,10 +2033,12 @@ Apply the rules in this guide exhaustively to the admin surfaces above:
 2. Apply §4 Bootstrap 4→5 class changes (data-bs- infix, float-end, ms/me,
    form-select, form-check, form-label, btn-secondary, badge bg-…, etc.).
 3. Apply §5 icon mapping (every fas/far/fa fa-… becomes bi bi-…) in admin views
-   and admin PHP icon arrays (setLinkButtons, setLinks, setWidgetButton,
-   getAdminTabs/getAdminServiceTabs). For config.json, set "icon": "bi-…" (NAME
-   ONLY — the admin prepends the bi base class; do not write "bi bi-…").
-   Do NOT convert getClientTabs/getClientServiceTabs icons.
+   and admin PHP icon arrays (setLinkButtons, setLinks, setWidgetButton, and
+   PLUGIN getAdminServiceTabs). MODULE getAdminTabs/getAdminServiceTabs must
+   return plain strings ('tabFoo' => "Title") — no arrays, no icons; an array
+   renders the tab as the literal text "Array" (§5.2, §15.13). For config.json,
+   set "icon": "bi-…" (NAME ONLY — the admin prepends the bi base class; do not
+   write "bi bi-…"). Do NOT convert getClientTabs/getClientServiceTabs icons.
 4. Apply §6 jQuery → vanilla JS conversion in admin views (no jQuery in admin).
    Replace $(document).ready, all selectors, all events, all $.fn.blestaXxx calls,
    blestaRequest, jQuery UI sortable, CKEditor binding. Use `fetch()` with
