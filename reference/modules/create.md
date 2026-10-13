@@ -215,6 +215,26 @@ public function cron($key) { return []; }          // run a cron task registered
 All are no-ops by default. Use `install()` to create custom tables (load `Record`), `upgrade()` to alter
 them, and `uninstall()` to drop them when `$last_instance` is true. Set Input errors to prevent the action.
 
+**`upgrade()` runs once per company (6.0.3+).** On a multi-company install the same module class has one
+row in `modules` per company. Blesta calls `upgrade($current_version)` separately for **each** of those
+instances, with `Blesta.company_id` primed to that instance's company and `$this->getModule()` returning
+that instance. Each instance's stored version is stamped only after its own run succeeds, and a failure
+in one company does not stop the others. (Before 6.0.3 it ran once, under whichever company clicked
+Upgrade, and stamped every company as upgraded — see CORE-6171.) Write `upgrade()` accordingly:
+
+- Keep the signature exactly `public function upgrade($current_version)` — adding parameters is a fatal
+  signature mismatch against the base class.
+- Scope work to the current instance: `$this->getModule()->id`, `$this->getModuleRows()`,
+  `Configure::get('Blesta.company_id')`. Do **not** loop `ModuleManager::getByClass()` over every
+  company's instance — that work now repeats once per company.
+- Anything that is inherently class-wide (a schema change on your own table, a one-off data rewrite
+  keyed by module class) must be **idempotent**: guard it so a second run is a no-op (`isset` /
+  `empty` checks, `ADD COLUMN IF NOT EXISTS`, "skip rows already in the new format").
+- Never delete-and-recreate cron tasks unconditionally. `CronTasks::deleteTask()` removes every
+  company's `cron_task_runs`; on a per-company loop only the last company would keep a run. Add the task
+  if missing (`CronTasks::add()`, fall back to `getByKey()`), then `addTaskRun()` for the current company.
+- Version-gate every step with `version_compare($current_version, 'x.y.z', '<')`.
+
 ---
 
 ## 7. Module rows (connections to the remote system)
@@ -973,6 +993,8 @@ $lang['YourModule.module_row_plural'] = 'Servers';
       *Optional:* ship an `options.json` if you want importable options (forward-looking, §9.2) — if you do,
       its `name`/`value` strings must agree with the code.
 - [ ] `account_count` kept in sync if you use group limits.
+- [ ] `upgrade($current_version)` keeps that exact signature, is version-gated, scoped to the current
+      instance/company, and idempotent for any class-wide work (it runs once per company — §6).
 - [ ] **Admin** views are Paradigm/Bootstrap 5, vanilla JS, Bootstrap Icons, light+dark safe
       (`reference/common/conversion-ui.md`); **client** views target the 6.0 client theme (BS4 + jQuery + FontAwesome). See §12.
 - [ ] Registrar: `features` block matches the `supports*`/tabs you actually implement; `getTldPricing`

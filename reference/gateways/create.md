@@ -179,6 +179,15 @@ Plus inherited concrete helpers you usually leave alone: `getName`, `getDescript
 `getAuthors`, `getCurrencies`, `getLogo`, `getIcon`, `getSignupUrl`, `errors()`, and lifecycle no-ops
 `install()`, `upgrade($current_version)`, `uninstall($gateway_id, $last_instance)`.
 
+**`upgrade()` runs once per company (6.0.3+).** On a multi-company install the same gateway class has one
+row in `gateways` per company. Blesta calls `upgrade($current_version)` once for **each** instance, with
+`Blesta.company_id` primed to that company and `$this->gateway_id` set to that instance (via
+`setGatewayId()`). Each instance's version is stamped only after its own run succeeds, and one company's
+failure does not stop the others. (Before 6.0.3 it ran once and stamped every company — CORE-6171.)
+Keep the signature exactly `upgrade($current_version)` (extra parameters are a fatal signature mismatch),
+scope work to `$this->gateway_id` / the current company rather than looping `GatewayManager::getByClass()`,
+version-gate each step, and make any class-wide work idempotent.
+
 **Settings flow:** `setMeta()` hands you the saved settings (decrypted) before any processing call —
 stash them in `$this->meta`. `getSettings()` renders the admin form; `editSettings()` validates submitted
 settings and returns the array to persist; `encryptableFields()` lists which of those keys are stored
@@ -632,6 +641,7 @@ class YourGateway extends MerchantGateway implements MerchantCc
 - [ ] Nonmerchant: `validate()` independently verifies authenticity and guards duplicates; `success()` doesn't grant service the IPN hasn't confirmed; invoices round-trip via the callback payload.
 - [ ] **Admin** `settings.pdt` is Paradigm/BS5; **client** payment forms are BS4 + jQuery + FontAwesome for 6.0 (§10).
 - [ ] Callback/notify URL built from `Blesta.gw_callback_url` (not hard-coded).
+- [ ] `upgrade($current_version)` keeps that exact signature, is version-gated, scoped to `$this->gateway_id` / the current company, and idempotent for any class-wide work (it runs once per company — §5).
 
 ---
 
